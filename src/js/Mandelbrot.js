@@ -143,74 +143,105 @@ export default class Mandelbrot
 		document.getElementById('max-iter').textContent = data.maxIter;
 
 		this.timeout = setTimeout(() => {
-			this.drawLine(data, 0);
+			this.nextLine(data, 0);
 		}, 0);
 	}
 
-	drawLine(data, j) 
+	drawLine(data, j)
 	{
-		let i, x, y, re, im, n, t, color, pixelsCount = 0;
+		let i, x, y, re, im, n, color, pixelsCount = 0;
 
-		for (t = 0; t < data.step; t++) {
-			for (i = 0; i < data.canvasWrapper.width; i += data.step) {
-				if (data.step === 1) {
-					const colorsMix = new ColorsMix();
+		for (i = 0; i < data.canvasWrapper.width; i += data.step) {
+			x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width));
+			y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height));
 
-					for (let s = 0; s < SUPER_SAMPLES_COUNT; s++) {
-						x = i + Utils.floatRand(-0.5, 0.5);
-						y = j + Utils.floatRand(-0.5, 0.5);
+			re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
+			im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
 
-						re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
-						im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
+			n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
 
-						n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
+			color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
 
-						color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
-
-						colorsMix.add(color);
-
-						pixelsCount++;
-					}
-
-					color = colorsMix.getColor();
-				} else {
-					x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width));
-					y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height));
-
-					re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
-					im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
-
-					n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
-
-					color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
-
-					pixelsCount++;
-				}
-
-
-				if (data.step === 1) {
-					data.canvasWrapper.putPixel(i, j, color);
-				} else {
-					data.canvasWrapper.putRectangle(
-						i,
-						j,
-						Math.min(i + data.step, data.canvasWrapper.width),
-						Math.min(j + data.step, data.canvasWrapper.height),
-						color
-					);
-				}
-
-				document.getElementById('red-line').style.top = Math.min(j + data.step, data.canvasWrapper.height) + 'px';
+			if (data.step === 1) {
+				data.canvasWrapper.putPixel(i, j, color);
+			} else {
+				data.canvasWrapper.putRectangle(
+					i,
+					j,
+					Math.min(i + data.step, data.canvasWrapper.width),
+					Math.min(j + data.step, data.canvasWrapper.height),
+					color
+				);
 			}
 
-			j += data.step;
+			pixelsCount++;
+		}
 
-			if (j >= data.canvasWrapper.height) {
-				break;
+		return pixelsCount;
+	}
+
+	drawLineSupersampled(data, j)
+	{
+		let i, x, y, re, im, n, color, pixelsCount = 0;
+
+		for (i = 0; i < data.canvasWrapper.width; i += data.step) {
+			const colorsMix = new ColorsMix();
+
+			for (let s = 0; s < SUPER_SAMPLES_COUNT; s++) {
+				x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width)) + Utils.floatRand(-data.step/2, data.step);
+				y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height)) + Utils.floatRand(-data.step, data.step);
+
+				re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
+				im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
+
+				n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
+
+				color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
+
+				colorsMix.add(color);
+
+				pixelsCount++;
+			}
+
+			color = colorsMix.getColor();
+
+			if (data.step === 1) {
+				data.canvasWrapper.putPixel(i, j, color);
+			} else {
+				data.canvasWrapper.putRectangle(
+					i,
+					j,
+					Math.min(i + data.step, data.canvasWrapper.width),
+					Math.min(j + data.step, data.canvasWrapper.height),
+					color
+				);
 			}
 		}
 
+		return pixelsCount;
+	}
 
+	nextLine(data, j) 
+	{
+		let pixelsCount = 0;
+
+		if (data.step === 1) {
+			pixelsCount += this.drawLineSupersampled(data, j);
+
+			j += data.step;
+		} else {
+			for (let t = 0; t < data.step; t++) {
+				pixelsCount +=  this.drawLine(data, j);
+
+				j += data.step;
+
+				if (j >= data.canvasWrapper.height) {
+					break;
+				}
+			}
+		}
+
+		document.getElementById('red-line').style.top = Math.min(j, data.canvasWrapper.height) + 'px';
 		document.getElementById('progress-bar').style.width = ((j - data.step) / data.canvasWrapper.height) * 100 + '%';
 
 		data.canvasWrapper.print();
@@ -223,7 +254,7 @@ export default class Mandelbrot
 
 		if (j - data.step < data.canvasWrapper.height) {
 			this.timeout = setTimeout(() => {
-				this.drawLine(data, j);
+				this.nextLine(data, j);
 			}, 0);
 		} else {
 			if (data.step > 1) {
@@ -232,7 +263,7 @@ export default class Mandelbrot
 				document.getElementById('step').textContent = data.step;
 
 				this.timeout = setTimeout(() => {
-					this.drawLine(data, 0);
+					this.nextLine(data, 0);
 				}, 0);
 			} else {
 				document.getElementById('step').textContent = '-';
