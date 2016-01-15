@@ -6,6 +6,7 @@ import ColorsMix from './ColorsMix';
 
 import ColorPallete1 from './colorPallete/ColorPallete1';
 import ColorPallete2 from './colorPallete/ColorPallete2';
+import ColorPallete3 from './colorPallete/ColorPallete3';
 
 const SUPER_SAMPLES_COUNT = 4;
 const ESCAPE_RADIUS = 10.0;
@@ -132,6 +133,7 @@ export default class Mandelbrot
 			maxIter: Math.floor(223.0/Math.sqrt(0.001+2.0 * Math.min(Math.abs(reMax-reMin), Math.abs(imMax-imMin)))),
 			colorPallete: new ColorPallete1()
 			//colorPallete: new ColorPallete2()
+			//colorPallete: new ColorPallete3()
 		}
 
 		this.startTime = Date.now() / 1000;
