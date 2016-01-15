@@ -139,9 +139,7 @@ export default class Mandelbrot
 
 		var v = this.smoothColor(steps, n, Tr, Ti);
 
-		var rgb = Color.hslToRgb(20.0 * v / steps, 1.0, 10.0*v/steps);
-
-		return new Color(rgb[0], rgb[1], rgb[2], 255);
+		return new Color.fromHSL(20.0 * v / steps, 1.0, 10.0*v/steps);
 	}
 
 	drawLine(data, j) {
@@ -157,8 +155,7 @@ export default class Mandelbrot
 
 				n = this.computeMandelbrot(re, im, data.maxIter);
 
-				//rgb = Color.hslToRgb(0.10, 0.9, n / data.maxIter);
-				//var color = new Color(rgb[0], rgb[1], rgb[2], 255);
+				//var color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
 				
 				var color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
 
