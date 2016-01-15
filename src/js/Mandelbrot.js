@@ -86,7 +86,7 @@ export default class Mandelbrot
 		});
 	}
 
-	computeMandelbrot(re, im, escapeRadius, maxIter) 
+	iterate(re, im, escapeRadius, maxIter) 
 	{
 		let iter, a = 0, b = 0, zr = 0, zi = 0;
 
@@ -111,42 +111,6 @@ export default class Mandelbrot
 		return [iter, a, b];
 	}
 
-
-	draw()
-	{
-		clearTimeout(this.timeout);
-
-		const reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
-		const reMax = this.centerX + this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
-		const imMin = this.centerY - this.size;
-		const imMax = this.centerY + this.size;
-
-		const data = {
-			canvasWrapper: this.canvasWrapper,
-			reMin,
-			reMax,
-			imMin,
-			imMax,
-			reDiff: reMax - reMin,
-			imDiff: imMax - imMin,
-			step: 16,
-			maxIter: Math.floor(223.0/Math.sqrt(0.001+2.0 * Math.min(Math.abs(reMax-reMin), Math.abs(imMax-imMin)))),
-			colorPallete: new ColorPallete1()
-			//colorPallete: new ColorPallete2()
-			//colorPallete: new ColorPallete3()
-		}
-
-		this.startTime = Date.now() / 1000;
-		this.pixelsCount = 0;
-
-		document.getElementById('step').textContent = data.step;
-		document.getElementById('max-iter').textContent = data.maxIter;
-
-		this.timeout = setTimeout(() => {
-			this.nextLine(data, 0);
-		}, 0);
-	}
-
 	drawLine(data, j)
 	{
 		let i, x, y, re, im, n, color, pixelsCount = 0;
@@ -158,7 +122,7 @@ export default class Mandelbrot
 			re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
 			im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
 
-			n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
+			n = this.iterate(re, im, ESCAPE_RADIUS, data.maxIter);
 
 			color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
 
@@ -194,7 +158,7 @@ export default class Mandelbrot
 				re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
 				im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
 
-				n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
+				n = this.iterate(re, im, ESCAPE_RADIUS, data.maxIter);
 
 				color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
 
@@ -271,6 +235,41 @@ export default class Mandelbrot
 				document.getElementById('progress-bar').style.width = 0;
 			}
 		}
+	}
+
+	draw()
+	{
+		clearTimeout(this.timeout);
+
+		const reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
+		const reMax = this.centerX + this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
+		const imMin = this.centerY - this.size;
+		const imMax = this.centerY + this.size;
+
+		const data = {
+			canvasWrapper: this.canvasWrapper,
+			reMin,
+			reMax,
+			imMin,
+			imMax,
+			reDiff: reMax - reMin,
+			imDiff: imMax - imMin,
+			step: 16,
+			maxIter: Math.floor(223.0/Math.sqrt(0.001+2.0 * Math.min(Math.abs(reMax-reMin), Math.abs(imMax-imMin)))),
+			colorPallete: new ColorPallete1()
+			//colorPallete: new ColorPallete2()
+			//colorPallete: new ColorPallete3()
+		}
+
+		this.startTime = Date.now() / 1000;
+		this.pixelsCount = 0;
+
+		document.getElementById('step').textContent = data.step;
+		document.getElementById('max-iter').textContent = data.maxIter;
+
+		this.timeout = setTimeout(() => {
+			this.nextLine(data, 0);
+		}, 0);
 	}
 
 }
