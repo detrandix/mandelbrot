@@ -6,7 +6,8 @@ import Color from './Color';
 export default class Mandelbrot
 {
 
-	constructor(canvasWrapper, centerX, centerY, size) {
+	constructor(canvasWrapper, centerX, centerY, size)
+	{
 		this.canvasWrapper = canvasWrapper;
 		this.centerX = centerX;
 		this.centerY = centerY;
@@ -40,7 +41,8 @@ export default class Mandelbrot
 			let normalized;
 
 			if (event.wheelDelta) {
-				normalized = (event.wheelDelta % 120 - 0) == -0 ? event.wheelDelta / 120 : event.wheelDelta / 12;
+				normalized = (event.wheelDelta % 120 - 0) == -0 ?
+					event.wheelDelta / 120 : event.wheelDelta / 12;
 			} else {
 				const rawAmmount = event.deltaY ? event.deltaY : event.detail;
 				normalized = -(rawAmmount % 3 ? rawAmmount * 10 : rawAmmount / 3);
@@ -76,7 +78,8 @@ export default class Mandelbrot
 		});
 	}
 
-	computeMandelbrot(re, im, maxIter) {
+	computeMandelbrot(re, im, maxIter) 
+	{
 		let n, a, b;
 
 		let zr = re;
@@ -94,7 +97,8 @@ export default class Mandelbrot
 	}
 
 
-	draw() {
+	draw()
+	{
 		clearTimeout(this.timeout);
 
 		const reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
@@ -126,15 +130,17 @@ export default class Mandelbrot
 	}
 
 
-	smoothColor(steps, n, Tr, Ti) {
+	smoothColor(steps, n, Tr, Ti)
+	{
 		const logBase = 1.0 / Math.log(2.0);
-		const logHalfBase = Math.log(0.5)*logBase;
+		const logHalfBase = Math.log(0.5) * logBase;
 
 		return 5 + n - logHalfBase - Math.log(Math.log(Tr+Ti))*logBase;
 	}
 
 
-	pickColor(steps, n, Tr, Ti) {
+	pickColor(steps, n, Tr, Ti) 
+	{
 		if (n == steps) // converged
 			return new Color(0, 0, 0, 255);
 
@@ -143,7 +149,8 @@ export default class Mandelbrot
 		return new Color.fromHSL(20.0 * v / steps, 1.0, 10.0 * v / steps);
 	}
 
-	drawLine(data, j) {
+	drawLine(data, j) 
+	{
 		let i, x, y, re, im, n, t, color;
 
 		for (t = 0; t < data.step; t++) {
@@ -160,7 +167,13 @@ export default class Mandelbrot
 				
 				color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
 
-				data.canvasWrapper.putRectangle(i, j, Math.min(i + data.step, data.canvasWrapper.width), Math.min(j + data.step, data.canvasWrapper.height), color);
+				data.canvasWrapper.putRectangle(
+					i,
+					j,
+					Math.min(i + data.step, data.canvasWrapper.width),
+					Math.min(j + data.step, data.canvasWrapper.height),
+					color
+				);
 
 				document.getElementById('red-line').style.top = Math.min(j + data.step, data.canvasWrapper.height) + 'px';
 			}

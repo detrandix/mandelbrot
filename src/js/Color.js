@@ -3,14 +3,16 @@
 export default class Color
 {
 
-	constructor(r, g, b, a = 255) {
+	constructor(r, g, b, a = 255)
+	{
 		this.r = r;
 		this.g = g;
 		this.b = b;
 		this.a = a;
 	}
 
-	static fromHSL(h, s, l, a = 255) {
+	static fromHSL(h, s, l, a = 255)
+	{
 		let r, g, b;
 
 		if (s === 0) {

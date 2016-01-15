@@ -3,7 +3,8 @@
 export default class CanvasWrapper
 {
 
-	constructor(canvas) {
+	constructor(canvas)
+	{
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 
@@ -14,7 +15,8 @@ export default class CanvasWrapper
 		this.canvasData = this.ctx.createImageData(canvas.width, canvas.height);
 	}
 
-	putPixel(x, y, color) {
+	putPixel(x, y, color)
+	{
 		let index = (x + y * this.width) * 4;
 
 		this.canvasData.data[index++] = color.r;
@@ -23,7 +25,8 @@ export default class CanvasWrapper
 		this.canvasData.data[index] = color.a;
 	}
 
-	putRectangle(x1, y1, x2, y2, color) {
+	putRectangle(x1, y1, x2, y2, color)
+	{
 		for (let y = y1; y < y2; y++) {
 			for (let x = x1; x < x2; x++) {
 				this.putPixel(x, y, color);
@@ -31,7 +34,8 @@ export default class CanvasWrapper
 		}
 	}
 
-	print() {
+	print()
+	{
 		this.ctx.putImageData(this.canvasData, 0, 0);
 	}
 
