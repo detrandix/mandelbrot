@@ -4,7 +4,11 @@ import Utils from './Utils';
 import Color from './Color';
 import ColorsMix from './ColorsMix';
 
-const SUPER_SAMPLES_COUNT = 10;
+const SUPER_SAMPLES_COUNT = 4;
+const ESCAPE_RADIUS = 10.0;
+
+const logBase = 1.0 / Math.log(2.0);
+const logHalfBase = Math.log(0.5) * logBase;
 
 export default class Mandelbrot
 {
@@ -81,22 +85,29 @@ export default class Mandelbrot
 		});
 	}
 
-	computeMandelbrot(re, im, maxIter) 
+	computeMandelbrot(re, im, escapeRadius, maxIter) 
 	{
-		let n, a, b;
+		let iter, a = 0, b = 0, zr = 0, zi = 0;
 
-		let zr = re;
-		let zi = im;
-
-		for (n = 0; n < maxIter; n++) {
-			a = zr * zr;
-			b = zi * zi;
-			if (a + b > 4) break;
+		for (iter = 0; iter < maxIter && (a + b) <= escapeRadius; ++iter) {
 			zi = 2 * zr * zi + im;
 			zr = a - b + re;
+			a = zr * zr;
+			b = zi * zi;
 		}
 
-		return [n, a, b];
+		/*
+		* Four more iterations to decrease error term;
+		* see http://linas.org/art-gallery/escape/escape.html
+		*/
+		for (let e = 0; e < 4; ++e) {
+			zi = 2 * zr * zi + im;
+			zr = a - b + re;
+			a = zr * zr;
+			b = zi * zi;
+		}
+
+		return [iter, a, b];
 	}
 
 
@@ -132,12 +143,8 @@ export default class Mandelbrot
 		}, 0);
 	}
 
-
 	smoothColor(steps, n, Tr, Ti)
 	{
-		const logBase = 1.0 / Math.log(2.0);
-		const logHalfBase = Math.log(0.5) * logBase;
-
 		return 5 + n - logHalfBase - Math.log(Math.log(Tr+Ti))*logBase;
 	}
 
@@ -158,32 +165,54 @@ export default class Mandelbrot
 
 		for (t = 0; t < data.step; t++) {
 			for (i = 0; i < data.canvasWrapper.width; i += data.step) {
-				const colorsMix = new ColorsMix();
+				if (data.step === 1) {
+					const colorsMix = new ColorsMix();
 
-				for (let s = 0; s < SUPER_SAMPLES_COUNT; s++) {
+					for (let s = 0; s < SUPER_SAMPLES_COUNT; s++) {
+						x = i + Utils.floatRand(-0.5, 0.5);
+						y = j + Utils.floatRand(-0.5, 0.5);
+
+						re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
+						im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
+
+						n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
+
+						color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
+						//color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
+
+						colorsMix.add(color);
+
+						pixelsCount++;
+					}
+
+					color = colorsMix.getColor();
+				} else {
 					x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width));
 					y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height));
 
 					re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
 					im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
 
-					n = this.computeMandelbrot(re, im, data.maxIter);
+					n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
 
-					// color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
-					color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
-
-					colorsMix.add(color);
+					color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
+					//color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
 
 					pixelsCount++;
 				}
 
-				data.canvasWrapper.putRectangle(
-					i,
-					j,
-					Math.min(i + data.step, data.canvasWrapper.width),
-					Math.min(j + data.step, data.canvasWrapper.height),
-					colorsMix.getColor()
-				);
+
+				if (data.step === 1) {
+					data.canvasWrapper.putPixel(i, j, color);
+				} else {
+					data.canvasWrapper.putRectangle(
+						i,
+						j,
+						Math.min(i + data.step, data.canvasWrapper.width),
+						Math.min(j + data.step, data.canvasWrapper.height),
+						color
+					);
+				}
 
 				document.getElementById('red-line').style.top = Math.min(j + data.step, data.canvasWrapper.height) + 'px';
 			}

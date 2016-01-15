@@ -8,6 +8,11 @@ export default class Utils
 		return Math.floor((Math.random() * (b - a)) + a);
 	}
 
+	static floatRand(a, b)
+	{
+		return (Math.random() * (b - a)) + a;
+	}
+
 	static metricUnits(number)
 	{
 		const unit = ['', 'k', 'M', 'G', 'T', 'P', 'E'];
