@@ -2,6 +2,9 @@
 
 import Utils from './Utils';
 import Color from './Color';
+import ColorsMix from './ColorsMix';
+
+const SUPER_SAMPLES_COUNT = 10;
 
 export default class Mandelbrot
 {
@@ -155,24 +158,29 @@ export default class Mandelbrot
 
 		for (t = 0; t < data.step; t++) {
 			for (i = 0; i < data.canvasWrapper.width; i += data.step) {
-				x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width));
-				y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height));
+				const colorsMix = new ColorsMix();
 
-				re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
-				im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
+				for (let s = 0; s < SUPER_SAMPLES_COUNT; s++) {
+					x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width));
+					y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height));
 
-				n = this.computeMandelbrot(re, im, data.maxIter);
+					re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
+					im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
 
-				// color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
-				
-				color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
+					n = this.computeMandelbrot(re, im, data.maxIter);
+
+					// color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
+					color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
+
+					colorsMix.add(color);
+				}
 
 				data.canvasWrapper.putRectangle(
 					i,
 					j,
 					Math.min(i + data.step, data.canvasWrapper.width),
 					Math.min(j + data.step, data.canvasWrapper.height),
-					color
+					colorsMix.getColor()
 				);
 
 				document.getElementById('red-line').style.top = Math.min(j + data.step, data.canvasWrapper.height) + 'px';
