@@ -22,6 +22,16 @@ export default class Mandelbrot
 		this.size = size;
 		this.timeout = null;
 
+		this.elements = {
+			redLine: document.getElementById('red-line'),
+			progressBar: document.getElementById('progress-bar'),
+			totalTime: document.getElementById('total-time'),
+			totalPixels: document.getElementById('total-pixels'),
+			pixelsPerSecond: document.getElementById('pixels-per-second'),
+			step: document.getElementById('step'),
+			maxIter: document.getElementById('max-iter')
+		};
+
 		this.computeData = {
 			startTime: null,
 			pixelsCount: null,
@@ -216,16 +226,15 @@ export default class Mandelbrot
 			}
 		}
 
-		document.getElementById('red-line').style.top = Math.min(j, this.canvasWrapper.height) + 'px';
-		document.getElementById('progress-bar').style.width = ((j - this.computeData.step) / this.canvasWrapper.height) * 100 + '%';
+		this.elements.redLine.style.top = Math.min(j, this.canvasWrapper.height) + 'px';
+		this.elements.progressBar.style.width = ((j - this.computeData.step) / this.canvasWrapper.height) * 100 + '%';
 
 		this.canvasWrapper.print();
 
 		this.computeData.pixelsCount += pixelsCount;
-		document.getElementById('total-time').textContent = Math.round(((Date.now() / 1000) - this.computeData.startTime) * 100) / 100;
-		document.getElementById('total-pixels').textContent = Utils.metricUnits(this.computeData.pixelsCount);
-		document.getElementById('pixels-per-second').textContent = Utils.metricUnits(this.computeData.pixelsCount / ((Date.now() / 1000) - this.computeData.startTime));
-
+		this.elements.totalTime.textContent = Math.round(((Date.now() / 1000) - this.computeData.startTime) * 100) / 100;
+		this.elements.totalPixels.textContent = Utils.metricUnits(this.computeData.pixelsCount);
+		this.elements.pixelsPerSecond.textContent = Utils.metricUnits(this.computeData.pixelsCount / ((Date.now() / 1000) - this.computeData.startTime));
 
 		if (j - this.computeData.step < this.canvasWrapper.height) {
 			this.timeout = setTimeout(() => {
@@ -235,15 +244,15 @@ export default class Mandelbrot
 			if (this.computeData.step > 1) {
 				this.computeData.step = Math.max(Math.round(this.computeData.step/4), 1);
 
-				document.getElementById('step').textContent = this.computeData.step;
+				this.elements.step.textContent = this.computeData.step;
 
 				this.timeout = setTimeout(() => {
 					this.nextLine(0);
 				}, 0);
 			} else {
-				document.getElementById('step').textContent = '-';
-				document.getElementById('max-iter').textContent = '-';
-				document.getElementById('progress-bar').style.width = 0;
+				this.elements.step.textContent = '-';
+				this.elements.maxIter.textContent = '-';
+				this.elements.progressBar.style.width = 0;
 			}
 		}
 	}
@@ -271,8 +280,8 @@ export default class Mandelbrot
 		//this.computeData.colorPallete = new ColorPallete2();
 		//this.computeData.colorPallete = new ColorPallete3();
 
-		document.getElementById('step').textContent = this.computeData.step;
-		document.getElementById('max-iter').textContent = this.computeData.maxIter;
+		this.elements.step.textContent = this.computeData.step;
+		this.elements.maxIter.textContent = this.computeData.maxIter;
 
 		this.timeout = setTimeout(() => {
 			this.nextLine(0);
