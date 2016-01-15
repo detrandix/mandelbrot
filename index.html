@@ -5,7 +5,8 @@
 
 	<title>Mandelbrot</title>
 
-	<link rel="stylesheet" href="dist/css/styles.css">
+	<link rel="stylesheet" type="text/css" href="dist/css/styles.css">
+	<link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/semantic-ui/2.1.8/semantic.min.css">
 </head>
 <body>
 	<div id="progress-bar"></div>
@@ -18,7 +19,9 @@
 		Total pixels: <span id="total-pixels">0</span><br>
 		Pixels/s: <span id="pixels-per-second">0</span><br>
 		Max Iterations: <span id="max-iter">-</span><br>
-		Step: <span id="step">-</span>
+		Step: <span id="step">-</span><br>
+		<br>
+		<a id="save" download="mandelbrot.png" class="fluid ui basic button"><i class="download icon"></i> save</a>
 	</div>
 
 	<script src="dist/js/app.min.js"></script>

@@ -105,6 +105,14 @@ export default class Mandelbrot
 
 			this.draw();
 		});
+
+		const _this = this;
+
+		document.getElementById('save').addEventListener('click', function () {
+			this.download = 'mandelbrot_' + _this.centerX + '_' + _this.centerY
+				+ '_' + _this.size + '_' + (Date.now() / 1000) + '.png';
+			this.href = canvasWrapper.canvas.toDataURL();
+		}, false);
 	}
 
 	iterate(re, im, escapeRadius, maxIter) 
