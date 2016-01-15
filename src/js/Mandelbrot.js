@@ -4,11 +4,11 @@ import Utils from './Utils';
 import Color from './Color';
 import ColorsMix from './ColorsMix';
 
+import ColorPallete1 from './colorPallete/ColorPallete1';
+import ColorPallete2 from './colorPallete/ColorPallete2';
+
 const SUPER_SAMPLES_COUNT = 4;
 const ESCAPE_RADIUS = 10.0;
-
-const logBase = 1.0 / Math.log(2.0);
-const logHalfBase = Math.log(0.5) * logBase;
 
 export default class Mandelbrot
 {
@@ -129,7 +129,9 @@ export default class Mandelbrot
 			reDiff: reMax - reMin,
 			imDiff: imMax - imMin,
 			step: 16,
-			maxIter: Math.floor(223.0/Math.sqrt(0.001+2.0 * Math.min(Math.abs(reMax-reMin), Math.abs(imMax-imMin))))
+			maxIter: Math.floor(223.0/Math.sqrt(0.001+2.0 * Math.min(Math.abs(reMax-reMin), Math.abs(imMax-imMin)))),
+			colorPallete: new ColorPallete1()
+			//colorPallete: new ColorPallete2()
 		}
 
 		this.startTime = Date.now() / 1000;
@@ -141,22 +143,6 @@ export default class Mandelbrot
 		this.timeout = setTimeout(() => {
 			this.drawLine(data, 0);
 		}, 0);
-	}
-
-	smoothColor(steps, n, Tr, Ti)
-	{
-		return 5 + n - logHalfBase - Math.log(Math.log(Tr+Ti))*logBase;
-	}
-
-
-	pickColor(steps, n, Tr, Ti) 
-	{
-		if (n == steps) // converged
-			return new Color(0, 0, 0, 255);
-
-		const v = this.smoothColor(steps, n, Tr, Ti);
-
-		return new Color.fromHSL(20.0 * v / steps, 1.0, 10.0 * v / steps);
 	}
 
 	drawLine(data, j) 
@@ -177,8 +163,7 @@ export default class Mandelbrot
 
 						n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
 
-						color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
-						//color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
+						color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
 
 						colorsMix.add(color);
 
@@ -195,8 +180,7 @@ export default class Mandelbrot
 
 					n = this.computeMandelbrot(re, im, ESCAPE_RADIUS, data.maxIter);
 
-					color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
-					//color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
+					color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
 
 					pixelsCount++;
 				}
