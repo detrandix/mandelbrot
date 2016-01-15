@@ -15,7 +15,7 @@ export default class CanvasWrapper
 	}
 
 	putPixel(x, y, color) {
-		var index = (x + y * this.width) * 4;
+		let index = (x + y * this.width) * 4;
 
 		this.canvasData.data[index++] = color.r;
 		this.canvasData.data[index++] = color.g;
@@ -24,8 +24,8 @@ export default class CanvasWrapper
 	}
 
 	putRectangle(x1, y1, x2, y2, color) {
-		for (var y = y1; y < y2; y++) {
-			for (var x = x1; x < x2; x++) {
+		for (let y = y1; y < y2; y++) {
+			for (let x = x1; x < x2; x++) {
 				this.putPixel(x, y, color);
 			}
 		}

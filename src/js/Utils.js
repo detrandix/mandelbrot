@@ -8,9 +8,10 @@ export default class Utils
 	}
 
 	static metricUnits(number) {
-		var unit = ['', 'k', 'M', 'G', 'T', 'P', 'E'];
-		var mag = Math.ceil((1+Math.log(number)/Math.log(10))/3);
-		return '' + (number/Math.pow(10, 3*(mag-1))).toFixed(2) + unit[mag];
+		const unit = ['', 'k', 'M', 'G', 'T', 'P', 'E'];
+		const mag = Math.ceil((1 + Math.log(number) / Math.log(10)) / 3);
+
+		return '' + (number / Math.pow(10, 3 * (mag- 1 ))).toFixed(2) + unit[mag];
 	}
 
 	static onDocumentReady(fn) {

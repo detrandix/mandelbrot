@@ -17,16 +17,16 @@ export default class Mandelbrot
 		this.pixelsCount = null;
 
 		this.canvasWrapper.canvas.addEventListener('dblclick', (event) => {
-			var widthPercent = (event.clientX - canvasWrapper.width/2) / canvasWrapper.width;
-			var heightPercent = (event.clientY - canvasWrapper.height/2) / canvasWrapper.height;
+			const widthPercent = (event.clientX - canvasWrapper.width/2) / canvasWrapper.width;
+			const heightPercent = (event.clientY - canvasWrapper.height/2) / canvasWrapper.height;
 
-			var reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
-			var reMax = this.centerX + this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
-			var imMin = this.centerY - this.size;
-			var imMax = this.centerY + this.size;
+			const reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
+			const reMax = this.centerX + this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
+			const imMin = this.centerY - this.size;
+			const imMax = this.centerY + this.size;
 
-			var width = reMax - reMin;
-			var height = imMax - imMin;
+			const width = reMax - reMin;
+			const height = imMax - imMin;
 
 			this.centerX += width * widthPercent;
 			this.centerY += height * heightPercent;
@@ -37,12 +37,12 @@ export default class Mandelbrot
 		}, false);
 
 		this.canvasWrapper.canvas.addEventListener('mousewheel', (event) => {
-			console.log('mousewheel');
-			var normalized;
+			let normalized;
+
 			if (event.wheelDelta) {
 				normalized = (event.wheelDelta % 120 - 0) == -0 ? event.wheelDelta / 120 : event.wheelDelta / 12;
 			} else {
-				var rawAmmount = event.deltaY ? event.deltaY : event.detail;
+				const rawAmmount = event.deltaY ? event.deltaY : event.detail;
 				normalized = -(rawAmmount % 3 ? rawAmmount * 10 : rawAmmount / 3);
 			}
 
@@ -51,22 +51,23 @@ export default class Mandelbrot
 			this.draw();
 		});
 
-		var mousedown;
+		let mousedown;
 
 		this.canvasWrapper.canvas.addEventListener('mousedown', (event) => {
 			mousedown = [event.clientX, event.clientY];
 		});
+
 		this.canvasWrapper.canvas.addEventListener('mouseup', (event) => {
-			var widthPercent = -(event.clientX - mousedown[0]) / canvasWrapper.width;
-			var heightPercent = -(event.clientY - mousedown[1]) / canvasWrapper.height;
+			const widthPercent = -(event.clientX - mousedown[0]) / canvasWrapper.width;
+			const heightPercent = -(event.clientY - mousedown[1]) / canvasWrapper.height;
 
-			var reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
-			var reMax = this.centerX + this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
-			var imMin = this.centerY - this.size;
-			var imMax = this.centerY + this.size;
+			const reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
+			const reMax = this.centerX + this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
+			const imMin = this.centerY - this.size;
+			const imMax = this.centerY + this.size;
 
-			var width = reMax - reMin;
-			var height = imMax - imMin;
+			const width = reMax - reMin;
+			const height = imMax - imMin;
 
 			this.centerX += width * widthPercent;
 			this.centerY += height * heightPercent;
@@ -76,10 +77,10 @@ export default class Mandelbrot
 	}
 
 	computeMandelbrot(re, im, maxIter) {
-		var n, a, b;
+		let n, a, b;
 
-		var zr = re;
-		var zi = im;
+		let zr = re;
+		let zi = im;
 
 		for (n = 0; n < maxIter; n++) {
 			a = zr * zr;
@@ -96,12 +97,12 @@ export default class Mandelbrot
 	draw() {
 		clearTimeout(this.timeout);
 
-		var reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
-		var reMax = this.centerX + this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
-		var imMin = this.centerY - this.size;
-		var imMax = this.centerY + this.size;
+		const reMin = this.centerX - this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
+		const reMax = this.centerX + this.size * (this.canvasWrapper.width / this.canvasWrapper.height);
+		const imMin = this.centerY - this.size;
+		const imMax = this.centerY + this.size;
 
-		var data = {
+		const data = {
 			canvasWrapper: this.canvasWrapper,
 			reMin,
 			reMax,
@@ -126,26 +127,26 @@ export default class Mandelbrot
 
 
 	smoothColor(steps, n, Tr, Ti) {
-		var logBase = 1.0 / Math.log(2.0);
-		var logHalfBase = Math.log(0.5)*logBase;
+		const logBase = 1.0 / Math.log(2.0);
+		const logHalfBase = Math.log(0.5)*logBase;
 
 		return 5 + n - logHalfBase - Math.log(Math.log(Tr+Ti))*logBase;
 	}
 
 
 	pickColor(steps, n, Tr, Ti) {
-		if ( n == steps ) // converged?
+		if (n == steps) // converged
 			return new Color(0, 0, 0, 255);
 
-		var v = this.smoothColor(steps, n, Tr, Ti);
+		const v = this.smoothColor(steps, n, Tr, Ti);
 
-		return new Color.fromHSL(20.0 * v / steps, 1.0, 10.0*v/steps);
+		return new Color.fromHSL(20.0 * v / steps, 1.0, 10.0 * v / steps);
 	}
 
 	drawLine(data, j) {
-		var i, x, y, re, im, n, rgb;
+		let i, x, y, re, im, n, t, color;
 
-		for (var t = 0; t < data.step; t++) {
+		for (t = 0; t < data.step; t++) {
 			for (i = 0; i < data.canvasWrapper.width; i += data.step) {
 				x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width));
 				y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height));
@@ -155,9 +156,9 @@ export default class Mandelbrot
 
 				n = this.computeMandelbrot(re, im, data.maxIter);
 
-				//var color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
+				// color = Color.fromHSL(0.10, 0.9, n[0] / data.maxIter);
 				
-				var color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
+				color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
 
 				data.canvasWrapper.putRectangle(i, j, Math.min(i + data.step, data.canvasWrapper.width), Math.min(j + data.step, data.canvasWrapper.height), color);
 
