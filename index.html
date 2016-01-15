@@ -1,58 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
-	<style>
-	html, body {
-	  width:  100%;
-	  height: 100%;
-	  margin: 0px;
-	  overflow:hidden;
-	  background: black;
-	}
-	canvas {
-	  width:  100%;
-	  height: 100%;
-	  margin: 0px;	
-	}
-	#progress-bar {
-		position: absolute;
-		left: 0;
-		top: 0;
-		height: 3px;
-		width: 0;
-		background: rgba(255, 0, 0, 0.9);
-	}	
-	#red-line {
-		position: absolute;
-		left: 0;
-		top: -1px;
-		height: 1px;
-		width: 100%;
-		border-bottom: 1px dotted rgba(255, 0, 0, 0.7);;
-	}
-	#info {
-		position: absolute;
-		left: 10px;
-		top: 10px;
-		padding: 10px;
-		background: rgba(255, 255, 255, 0.2);
-		font-family: arial;
-	}
-	</style>
+	<meta charset="utf-8">
+
+	<title>Mandelbrot</title>
+
+	<link rel="stylesheet" href="dist/css/styles.css">
 </head>
 <body>
 	<div id="progress-bar"></div>
 	<div id="red-line"></div>
-	<canvas id="canvas" onload="onload">Your browser doesn't support canvas</canvas>
+
+	<canvas id="canvas">Your browser doesn't support canvas</canvas>
+
 	<div id="info">
-	Total time: <span id="total-time">0</span>s<br>
-	Total pixels: <span id="total-pixels">0</span><br>
-	Pixels/s: <span id="pixels-per-second">0</span><br>
-	Max Iterations: <span id="max-iter">-</span><br>
-	Step: <span id="step">-</span>
+		Total time: <span id="total-time">0</span>s<br>
+		Total pixels: <span id="total-pixels">0</span><br>
+		Pixels/s: <span id="pixels-per-second">0</span><br>
+		Max Iterations: <span id="max-iter">-</span><br>
+		Step: <span id="step">-</span>
 	</div>
 
-	<script src="dist/app.min.js"></script>
+	<script src="dist/js/app.min.js"></script>
 </body>
 </html>
