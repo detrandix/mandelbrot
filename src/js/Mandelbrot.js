@@ -154,7 +154,7 @@ export default class Mandelbrot
 
 	drawLine(data, j) 
 	{
-		let i, x, y, re, im, n, t, color;
+		let i, x, y, re, im, n, t, color, pixelsCount = 0;
 
 		for (t = 0; t < data.step; t++) {
 			for (i = 0; i < data.canvasWrapper.width; i += data.step) {
@@ -173,6 +173,8 @@ export default class Mandelbrot
 					color = this.pickColor(data.maxIter, n[0], n[1], n[2]);
 
 					colorsMix.add(color);
+
+					pixelsCount++;
 				}
 
 				data.canvasWrapper.putRectangle(
@@ -198,7 +200,7 @@ export default class Mandelbrot
 
 		data.canvasWrapper.print();
 
-		this.pixelsCount += Math.floor(data.canvasWrapper.width / data.step);
+		this.pixelsCount += pixelsCount;
 		document.getElementById('total-time').textContent = Math.round(((Date.now() / 1000) - this.startTime) * 100) / 100;
 		document.getElementById('total-pixels').textContent = Utils.metricUnits(this.pixelsCount);
 		document.getElementById('pixels-per-second').textContent = Utils.metricUnits(this.pixelsCount / ((Date.now() / 1000) - this.startTime));
