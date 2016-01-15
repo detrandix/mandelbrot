@@ -11,6 +11,14 @@ class Utils
 		var mag = Math.ceil((1+Math.log(number)/Math.log(10))/3);
 		return '' + (number/Math.pow(10, 3*(mag-1))).toFixed(2) + unit[mag];
 	}
+
+	static onDocumentReady(fn) {
+		if (document.readyState != 'loading'){
+			fn();
+		} else {
+			document.addEventListener('DOMContentLoaded', fn);
+		}
+	}
 }
 
 class Color
@@ -207,8 +215,8 @@ class Mandelbrot
 		this.startTime = Date.now() / 1000;
 		this.pixelsCount = 0;
 
-		$('#step').text(data.step);
-		$('#max-iter').text(data.maxIter);
+		document.getElementById('step').textContent = data.step;
+		document.getElementById('max-iter').textContent = data.maxIter;
 
 		this.timeout = setTimeout(() => {
 			this.drawLine(data, 0);
@@ -255,7 +263,7 @@ class Mandelbrot
 
 				data.canvasWrapper.putRectangle(i, j, Math.min(i + data.step, data.canvasWrapper.width), Math.min(j + data.step, data.canvasWrapper.height), color);
 
-				$('#red-line').css({top: Math.min(j + data.step, data.canvasWrapper.height)});
+				document.getElementById('red-line').style.top = Math.min(j + data.step, data.canvasWrapper.height) + 'px';
 			}
 
 			j += data.step;
@@ -266,13 +274,15 @@ class Mandelbrot
 		}
 
 
-		$('#progress-bar').width(((j - data.step) / data.canvasWrapper.height) * 100 + '%');
+		document.getElementById('progress-bar').style.width = ((j - data.step) / data.canvasWrapper.height) * 100 + '%';
+
 		data.canvasWrapper.print();
 
 		this.pixelsCount += Math.floor(data.canvasWrapper.width / data.step);
-		$('#total-time').text(Math.round(((Date.now() / 1000) - this.startTime) * 100) / 100);
-		$('#total-pixels').text(Utils.metricUnits(this.pixelsCount));
-		$('#pixels-per-second').text(Utils.metricUnits(this.pixelsCount / ((Date.now() / 1000) - this.startTime)));
+		document.getElementById('total-time').textContent = Math.round(((Date.now() / 1000) - this.startTime) * 100) / 100;
+		document.getElementById('total-pixels').textContent = Utils.metricUnits(this.pixelsCount);
+		document.getElementById('pixels-per-second').textContent = Utils.metricUnits(this.pixelsCount / ((Date.now() / 1000) - this.startTime));
+
 
 		if (j - data.step < data.canvasWrapper.height) {
 			this.timeout = setTimeout(() => {
@@ -282,20 +292,23 @@ class Mandelbrot
 			if (data.step > 1) {
 				data.step = Math.max(Math.round(data.step/4), 1);
 
-				$('#step').text(data.step);
+				document.getElementById('step').textContent = data.step;
 
 				this.timeout = setTimeout(() => {
 					this.drawLine(data, 0);
 				}, 0);
 			} else {
-				$('#step').text('-');
-				$('#max-iter').text('-');
-				$('#progress-bar').width(0);
+				document.getElementById('step').textContent = '-';
+				document.getElementById('max-iter').textContent = '-';
+				document.getElementById('progress-bar').style.width = 0;
 			}
 		}
 	}
 }
 
-var canvasWrapper = new CanvasWrapper(document.getElementById('canvas'));
-var mandelbrot = new Mandelbrot(canvasWrapper, -0.5, 0, 1.0, 126);
-mandelbrot.draw();
+
+Utils.onDocumentReady(() => {
+	var canvasWrapper = new CanvasWrapper(document.getElementById('canvas'));
+	var mandelbrot = new Mandelbrot(canvasWrapper, -0.5, 0, 1.0, 126);
+	mandelbrot.draw();
+});
