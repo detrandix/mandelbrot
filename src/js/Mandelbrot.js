@@ -22,8 +22,19 @@ export default class Mandelbrot
 		this.size = size;
 		this.timeout = null;
 
-		this.startTime = null;
-		this.pixelsCount = null;
+		this.computeData = {
+			startTime: null,
+			pixelsCount: null,
+			reMin: null,
+			reMax: null,
+			imMin: null,
+			imMax: null,
+			reDiff: null,
+			imDiff: null,
+			step: null,
+			maxIter: null,
+			colorPallete: null
+		};
 
 		this.canvasWrapper.canvas.addEventListener('dblclick', (event) => {
 			const widthPercent = (event.clientX - canvasWrapper.width/2) / canvasWrapper.width;
@@ -111,29 +122,29 @@ export default class Mandelbrot
 		return [iter, a, b];
 	}
 
-	drawLine(data, j)
+	drawLine(j)
 	{
 		let i, x, y, re, im, n, color, pixelsCount = 0;
 
-		for (i = 0; i < data.canvasWrapper.width; i += data.step) {
-			x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width));
-			y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height));
+		for (i = 0; i < this.canvasWrapper.width; i += this.computeData.step) {
+			x = Utils.rand(i, Math.min(i + this.computeData.step, this.canvasWrapper.width));
+			y = Utils.rand(j, Math.min(j + this.computeData.step, this.canvasWrapper.height));
 
-			re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
-			im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
+			re = this.computeData.reMin + this.computeData.reDiff * (x / this.canvasWrapper.width);
+			im = this.computeData.imMin + this.computeData.imDiff * (y / this.canvasWrapper.height);
 
-			n = this.iterate(re, im, ESCAPE_RADIUS, data.maxIter);
+			n = this.iterate(re, im, ESCAPE_RADIUS, this.computeData.maxIter);
 
-			color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
+			color = this.computeData.colorPallete.computeColor(n[0], this.computeData.maxIter, n[1], n[2]);
 
-			if (data.step === 1) {
-				data.canvasWrapper.putPixel(i, j, color);
+			if (this.computeData.step === 1) {
+				this.canvasWrapper.putPixel(i, j, color);
 			} else {
-				data.canvasWrapper.putRectangle(
+				this.canvasWrapper.putRectangle(
 					i,
 					j,
-					Math.min(i + data.step, data.canvasWrapper.width),
-					Math.min(j + data.step, data.canvasWrapper.height),
+					Math.min(i + this.computeData.step, this.canvasWrapper.width),
+					Math.min(j + this.computeData.step, this.canvasWrapper.height),
 					color
 				);
 			}
@@ -144,23 +155,23 @@ export default class Mandelbrot
 		return pixelsCount;
 	}
 
-	drawLineSupersampled(data, j)
+	drawLineSupersampled(j)
 	{
 		let i, x, y, re, im, n, color, pixelsCount = 0;
 
-		for (i = 0; i < data.canvasWrapper.width; i += data.step) {
+		for (i = 0; i < this.canvasWrapper.width; i += this.computeData.step) {
 			const colorsMix = new ColorsMix();
 
 			for (let s = 0; s < SUPER_SAMPLES_COUNT; s++) {
-				x = Utils.rand(i, Math.min(i + data.step, data.canvasWrapper.width)) + Utils.floatRand(-data.step/2, data.step);
-				y = Utils.rand(j, Math.min(j + data.step, data.canvasWrapper.height)) + Utils.floatRand(-data.step, data.step);
+				x = Utils.rand(i, Math.min(i + this.computeData.step, this.canvasWrapper.width)) + Utils.floatRand(-this.computeData.step/2, this.computeData.step);
+				y = Utils.rand(j, Math.min(j + this.computeData.step, this.canvasWrapper.height)) + Utils.floatRand(-this.computeData.step, this.computeData.step);
 
-				re = data.reMin + data.reDiff * (x / data.canvasWrapper.width);
-				im = data.imMin + data.imDiff * (y / data.canvasWrapper.height);
+				re = this.computeData.reMin + this.computeData.reDiff * (x / this.canvasWrapper.width);
+				im = this.computeData.imMin + this.computeData.imDiff * (y / this.canvasWrapper.height);
 
-				n = this.iterate(re, im, ESCAPE_RADIUS, data.maxIter);
+				n = this.iterate(re, im, ESCAPE_RADIUS, this.computeData.maxIter);
 
-				color = data.colorPallete.computeColor(n[0], data.maxIter, n[1], n[2]);
+				color = this.computeData.colorPallete.computeColor(n[0], this.computeData.maxIter, n[1], n[2]);
 
 				colorsMix.add(color);
 
@@ -169,14 +180,14 @@ export default class Mandelbrot
 
 			color = colorsMix.getColor();
 
-			if (data.step === 1) {
-				data.canvasWrapper.putPixel(i, j, color);
+			if (this.computeData.step === 1) {
+				this.canvasWrapper.putPixel(i, j, color);
 			} else {
-				data.canvasWrapper.putRectangle(
+				this.canvasWrapper.putRectangle(
 					i,
 					j,
-					Math.min(i + data.step, data.canvasWrapper.width),
-					Math.min(j + data.step, data.canvasWrapper.height),
+					Math.min(i + this.computeData.step, this.canvasWrapper.width),
+					Math.min(j + this.computeData.step, this.canvasWrapper.height),
 					color
 				);
 			}
@@ -185,49 +196,49 @@ export default class Mandelbrot
 		return pixelsCount;
 	}
 
-	nextLine(data, j) 
+	nextLine(j) 
 	{
 		let pixelsCount = 0;
 
-		if (data.step === 1) {
-			pixelsCount += this.drawLineSupersampled(data, j);
+		if (this.computeData.step === 1) {
+			pixelsCount += this.drawLineSupersampled(j);
 
-			j += data.step;
+			j += this.computeData.step;
 		} else {
-			for (let t = 0; t < data.step; t++) {
-				pixelsCount +=  this.drawLine(data, j);
+			for (let t = 0; t < this.computeData.step; t++) {
+				pixelsCount +=  this.drawLine(j);
 
-				j += data.step;
+				j += this.computeData.step;
 
-				if (j >= data.canvasWrapper.height) {
+				if (j >= this.canvasWrapper.height) {
 					break;
 				}
 			}
 		}
 
-		document.getElementById('red-line').style.top = Math.min(j, data.canvasWrapper.height) + 'px';
-		document.getElementById('progress-bar').style.width = ((j - data.step) / data.canvasWrapper.height) * 100 + '%';
+		document.getElementById('red-line').style.top = Math.min(j, this.canvasWrapper.height) + 'px';
+		document.getElementById('progress-bar').style.width = ((j - this.computeData.step) / this.canvasWrapper.height) * 100 + '%';
 
-		data.canvasWrapper.print();
+		this.canvasWrapper.print();
 
-		this.pixelsCount += pixelsCount;
-		document.getElementById('total-time').textContent = Math.round(((Date.now() / 1000) - this.startTime) * 100) / 100;
-		document.getElementById('total-pixels').textContent = Utils.metricUnits(this.pixelsCount);
-		document.getElementById('pixels-per-second').textContent = Utils.metricUnits(this.pixelsCount / ((Date.now() / 1000) - this.startTime));
+		this.computeData.pixelsCount += pixelsCount;
+		document.getElementById('total-time').textContent = Math.round(((Date.now() / 1000) - this.computeData.startTime) * 100) / 100;
+		document.getElementById('total-pixels').textContent = Utils.metricUnits(this.computeData.pixelsCount);
+		document.getElementById('pixels-per-second').textContent = Utils.metricUnits(this.computeData.pixelsCount / ((Date.now() / 1000) - this.computeData.startTime));
 
 
-		if (j - data.step < data.canvasWrapper.height) {
+		if (j - this.computeData.step < this.canvasWrapper.height) {
 			this.timeout = setTimeout(() => {
-				this.nextLine(data, j);
+				this.nextLine(j);
 			}, 0);
 		} else {
-			if (data.step > 1) {
-				data.step = Math.max(Math.round(data.step/4), 1);
+			if (this.computeData.step > 1) {
+				this.computeData.step = Math.max(Math.round(this.computeData.step/4), 1);
 
-				document.getElementById('step').textContent = data.step;
+				document.getElementById('step').textContent = this.computeData.step;
 
 				this.timeout = setTimeout(() => {
-					this.nextLine(data, 0);
+					this.nextLine(0);
 				}, 0);
 			} else {
 				document.getElementById('step').textContent = '-';
@@ -246,29 +257,25 @@ export default class Mandelbrot
 		const imMin = this.centerY - this.size;
 		const imMax = this.centerY + this.size;
 
-		const data = {
-			canvasWrapper: this.canvasWrapper,
-			reMin,
-			reMax,
-			imMin,
-			imMax,
-			reDiff: reMax - reMin,
-			imDiff: imMax - imMin,
-			step: 16,
-			maxIter: Math.floor(223.0/Math.sqrt(0.001+2.0 * Math.min(Math.abs(reMax-reMin), Math.abs(imMax-imMin)))),
-			colorPallete: new ColorPallete1()
-			//colorPallete: new ColorPallete2()
-			//colorPallete: new ColorPallete3()
-		}
+		this.computeData.startTime = Date.now() / 1000;
+		this.computeData.pixelsCount = 0;
+		this.computeData.reMin = reMin;
+		this.computeData.reMax = reMax;
+		this.computeData.imMin = imMin;
+		this.computeData.imMax = imMax;
+		this.computeData.reDiff = reMax - reMin;
+		this.computeData.imDiff = imMax - imMin;
+		this.computeData.step = 16;
+		this.computeData.maxIter = Math.floor(223.0/Math.sqrt(0.001+2.0 * Math.min(Math.abs(reMax-reMin), Math.abs(imMax-imMin))));
+		this.computeData.colorPallete = new ColorPallete1();
+		//this.computeData.colorPallete = new ColorPallete2();
+		//this.computeData.colorPallete = new ColorPallete3();
 
-		this.startTime = Date.now() / 1000;
-		this.pixelsCount = 0;
-
-		document.getElementById('step').textContent = data.step;
-		document.getElementById('max-iter').textContent = data.maxIter;
+		document.getElementById('step').textContent = this.computeData.step;
+		document.getElementById('max-iter').textContent = this.computeData.maxIter;
 
 		this.timeout = setTimeout(() => {
-			this.nextLine(data, 0);
+			this.nextLine(0);
 		}, 0);
 	}
 
